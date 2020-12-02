@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 #settings.py ignore
-/app/settings.py
+/app/app/settings.py
