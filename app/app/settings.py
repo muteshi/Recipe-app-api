@@ -22,6 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'account',
     'core',
 ]
 
@@ -109,3 +112,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'core.CustomUser'
+
+TIME_ZONE = 'Africa/Nairobi'
