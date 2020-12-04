@@ -26,7 +26,7 @@ class ManageUserAccountView(generics.RetrieveUpdateAPIView):
     Manage the authenticated user details
     """
     serializer_class = UserAccountSerializer
-#     queryset = get_user_model().objects.all()
+    queryset = get_user_model().objects.all()
     authentication_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
