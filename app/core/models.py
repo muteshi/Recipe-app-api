@@ -6,6 +6,8 @@ from django.contrib.auth.models import (
     PermissionsMixin
 )
 
+from django.conf import settings
+
 
 class UserManager(BaseUserManager):
 
@@ -51,3 +53,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "User"
         verbose_name_plural = 'Users'
+
+
+class Tag(models.Model):
+    """
+    Tag model to be used for a recipe tagging
+    """
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
