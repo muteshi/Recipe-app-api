@@ -12,13 +12,37 @@ class UserAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('email', 'password', 'name')
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 6}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'min_length': 6,
+                'style': {'input_type': 'password'}
+            }
+        }
 
     def create(self, validated_data):
         """
         Creates new user account with encrypted password and returns it
         """
-        return get_user_model().objects.create_user(**validated_data)
+        user = get_user_model().objects.create_user(
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        """
+        Update a user account
+        Sets password correctly and returns it
+        """
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)
 
 
 class AuthTokenSerializer(serializers.Serializer):

@@ -1,4 +1,5 @@
-from rest_framework import generics
+from django.contrib.auth import get_user_model
+from rest_framework import generics, authentication, permissions
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 
@@ -18,3 +19,19 @@ class CreateTokentView(ObtainAuthToken):
     """
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class ManageUserAccountView(generics.RetrieveUpdateAPIView):
+    """
+    Manage the authenticated user details
+    """
+    serializer_class = UserAccountSerializer
+#     queryset = get_user_model().objects.all()
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        """
+        Retrieve and return authenticated user account
+        """
+        return self.request.user

@@ -8,6 +8,7 @@ from rest_framework import status
 
 CREATE_USER_URL = reverse('account:account-create')
 TOKEN_URL = reverse('account:account-token')
+MANAGE_USER_URL = reverse('account:account-manage')
 
 
 def create_account(**params):
@@ -127,3 +128,62 @@ class PublicUserAccountTests(TestCase):
             TOKEN_URL, {'email': 'wrongemail', 'password': ''})
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_user_unauthorized(self):
+        """
+        Test that user is authenticated
+        """
+        res = self.client.get(MANAGE_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateAccountApiTests(TestCase):
+    """
+    Test API requests that requires user authentication
+    """
+
+    def setUp(self):
+
+        self.user = create_account(
+            email='test@webgurus.co.ke',
+            password='wrongpassword',
+            name='Testing Jina',
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_user_account_success(self):
+        """
+        Test retrieving a user account for logged in user
+        """
+        res = self.client.get(MANAGE_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {
+            'name': self.user.name,
+            'email': self.user.email,
+        })
+
+    def test_post_not_allowed(self):
+        """
+        Test that post method is not allowed on MANAGE_USER_URL
+        """
+        res = self.client.post(MANAGE_USER_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_account(self):
+        """
+        Test updating user account for authenticated users is working
+        """
+        payload = {
+            'name': 'Jina Mpya',
+            'password': 'newpassword',
+        }
+        res = self.client.patch(MANAGE_USER_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.name, payload['name'])
+        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
